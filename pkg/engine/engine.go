@@ -10,9 +10,9 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/XXueTu/workflow/internal/components"
-	"github.com/XXueTu/workflow/internal/core"
-	"github.com/XXueTu/workflow/internal/observability"
+	"github.com/XXueTu/workflow/pkg/components"
+	"github.com/XXueTu/workflow/pkg/core"
+	"github.com/XXueTu/workflow/pkg/observability"
 )
 
 // WorkflowEngine 工作流引擎
