@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/internal/core"
 )
 
 const (

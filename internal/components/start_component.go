@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/internal/core"
 )
 
 // StartComponent 启动组件

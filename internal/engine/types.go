@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/components"
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/internal/components"
+	"github.com/XXueTu/workflow/internal/core"
 )
 
 // WorkflowStatus 表示工作流的状态

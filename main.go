@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
-	"github.com/XXueTu/workflow/flow-engine/internal/engine"
-	"github.com/XXueTu/workflow/flow-engine/internal/metrics"
+	"github.com/XXueTu/workflow/internal/core"
+	"github.com/XXueTu/workflow/internal/engine"
+	"github.com/XXueTu/workflow/internal/metrics"
 )
 
 func main() {

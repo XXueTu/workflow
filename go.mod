@@ -1,4 +1,4 @@
-module github.com/XXueTu/workflow/flow-engine
+module github.com/XXueTu/workflow
 
 go 1.24.0
 

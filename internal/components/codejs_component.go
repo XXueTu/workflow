@@ -12,7 +12,7 @@ import (
 
 	"github.com/dop251/goja"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/internal/core"
 )
 
 // CodejsComponent 代码执行组件

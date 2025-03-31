@@ -14,7 +14,7 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/internal/core"
 )
 
 var client *http.Client
