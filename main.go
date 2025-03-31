@@ -37,7 +37,7 @@ func main() {
 
 	// 创建带有超时的上下文
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-	defer cancel() // 确保在函数结束时取消上下文
+	defer cancel()
 
 	// 注册工作流
 	err = eg.RegisterWorkflow(ctx, &workflowDefinition)
