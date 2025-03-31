@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/components"
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/components"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
 )
 
 // WorkflowStatus 表示工作流的状态

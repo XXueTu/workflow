@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
 )
 
 const (

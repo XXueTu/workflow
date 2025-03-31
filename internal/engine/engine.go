@@ -10,9 +10,9 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"golang.org/x/sync/errgroup"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/components"
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
-	"gitlab.trustbe.net/middleware/flow-engine/internal/observability"
+	"github.com/XXueTu/workflow/flow-engine/internal/components"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/observability"
 )
 
 // WorkflowEngine 工作流引擎

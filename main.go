@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
-	"gitlab.trustbe.net/middleware/flow-engine/internal/engine"
-	"gitlab.trustbe.net/middleware/flow-engine/internal/metrics"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/engine"
+	"github.com/XXueTu/workflow/flow-engine/internal/metrics"
 )
 
 func main() {

@@ -8,7 +8,7 @@ import (
 	"slices"
 	"sync"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
 )
 
 // StartComponent 启动组件

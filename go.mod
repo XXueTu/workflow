@@ -1,4 +1,4 @@
-module gitlab.trustbe.net/middleware/flow-engine
+module github.com/XXueTu/workflow/flow-engine
 
 go 1.24.0
 
@@ -12,7 +12,6 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/panjf2000/ants/v2 v2.11.2
 	github.com/tidwall/gjson v1.18.0
-	github.com/tidwall/sjson v1.2.5
 	github.com/valyala/fasthttp v1.59.0
 	golang.org/x/sync v0.12.0
 )

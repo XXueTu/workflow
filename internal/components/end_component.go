@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"gitlab.trustbe.net/middleware/flow-engine/internal/core"
+	"github.com/XXueTu/workflow/flow-engine/internal/core"
 )
 
 // EndComponent 结束组件
