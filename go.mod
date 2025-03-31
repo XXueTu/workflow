@@ -3,7 +3,7 @@ module github.com/XXueTu/workflow/flow-engine
 go 1.24.0
 
 // 版本信息
-// Version: 1.0.0
+// Version: 1.1.0
 // BuildTime: 2024-04-01
 // GitCommit: xuetu
 
