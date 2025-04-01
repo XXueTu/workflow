@@ -128,7 +128,7 @@
             "config": {
                 "url": "http://10.99.16.49:8889/api/role/v1/{{start-node-1.output.name}}",
                 "method": "POST",
-                "timeout": 5,
+                "timeout": 3,
                 "retries": 3,
                 "headers": [
                     {

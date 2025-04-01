@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"maps"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -47,7 +48,7 @@ func NewWorkflowEngine(opts ...Option) *WorkflowEngine {
 		cleanup:      make(chan string, 100),
 		shutdownCh:   make(chan struct{}),
 		metricsCollector: &MetricsCollector{
-			metrics: make(map[string]*WorkflowMetrics),
+			metrics: make(map[string]*core.WorkflowMetrics),
 		},
 	}
 
@@ -103,7 +104,7 @@ func (e *WorkflowEngine) RegisterWorkflow(ctx context.Context, def *core.Workflo
 	}
 
 	// 构建执行计划
-	plan, err := e.buildExecutionPlan(def)
+	plan, err := e.buildExecutionPlan(ctx, def)
 	if err != nil {
 		return fmt.Errorf("无法构建执行计划: %v", err)
 	}
@@ -127,7 +128,7 @@ func (e *WorkflowEngine) RegisterWorkflow(ctx context.Context, def *core.Workflo
 func (e *WorkflowEngine) handleExistingWorkflow(workflowID string) error {
 	if existing, exists := e.executorPool[workflowID]; exists {
 		atomic.StoreInt64(&existing.lastAccessed, time.Now().UnixNano())
-		existing.status = WorkflowStatusDeploying
+		existing.status = core.WorkflowStatusDeploying
 	}
 	return nil
 }
@@ -140,11 +141,11 @@ func (e *WorkflowEngine) createExecutor(def *core.WorkflowDef, plan *ExecutionPl
 		executionPlan:   plan,
 		conditionRouter: condition,
 		totalNodes:      int64(len(def.Nodes)),
-		status:          WorkflowStatusActive,
+		status:          core.WorkflowStatusActive,
 		createdAt:       time.Now(),
 		defaultTTL:      e.config.DefaultContextTTL,
 		shutdownCh:      make(chan struct{}),
-		metrics:         &WorkflowMetrics{LastExecutionTime: time.Now()},
+		metrics:         &core.WorkflowMetrics{LastExecutionTime: time.Now()},
 	}
 }
 
@@ -168,7 +169,7 @@ func (e *WorkflowEngine) DeregisterWorkflow(ctx context.Context, workflowID stri
 		return fmt.Errorf("工作流未找到: %s", workflowID)
 	}
 
-	executor.status = WorkflowStatusShutdown
+	executor.status = core.WorkflowStatusShutdown
 	e.mu.Unlock()
 
 	if !graceful {
@@ -231,7 +232,7 @@ func (e *WorkflowEngine) ExecuteWorkflow(ctx context.Context, workflowID string,
 	}
 
 	// 检查工作流状态
-	if executor.status == WorkflowStatusShutdown {
+	if executor.status == core.WorkflowStatusShutdown {
 		return fmt.Errorf("工作流正在关闭: %s", workflowID)
 	}
 
@@ -388,7 +389,7 @@ func (e *WorkflowEngine) handleNodeExecution(execCtx *core.ExecutionContext, exe
 	}
 
 	// 创建并执行组件
-	component, err := components.ComponentFactory(node.Type, node.NodeDefinition)
+	component, err := components.ComponentFactory(e, node.Type, node.NodeDefinition)
 	if err != nil {
 		return fmt.Errorf("无法创建组件 [%s]: %v", node.ID, err)
 	}
@@ -480,21 +481,41 @@ func (e *WorkflowEngine) prepareNodeInput(ctx *core.ExecutionContext, node *core
 		return core.ProcessNodeOutput(zero.(map[string]any), node.Outputs)
 	}
 
-	// 自定义输入
-	input, err := component.AnalyzeInputs(ctx)
+	// 初始化合并结果
+	mergedInput := make(map[string]any)
+
+	// 1. 获取自定义输入
+	customInput, err := component.AnalyzeInputs(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("分析自定义输入失败: %v", err)
 	}
-	if input != nil {
-		return input, nil
+
+	// 2. 如果有自定义输入，先复制到合并结果中
+	if customInput != nil {
+		if customMap, ok := customInput.(map[string]any); ok {
+			for k, v := range customMap {
+				mergedInput[k] = v
+			}
+		} else {
+			return nil, fmt.Errorf("自定义输入必须是map类型")
+		}
 	}
 
-	// 标准输入
-	input, err = core.ParseNodeInputs(node.Inputs, ctx)
+	// 3. 获取标准输入
+	standardInput, err := core.ParseNodeInputs(node.Inputs, ctx)
 	if err != nil {
 		return nil, fmt.Errorf("解析标准输入失败: %v", err)
 	}
-	return input, nil
+
+	// 4. 合并标准输入
+	maps.Copy(mergedInput, standardInput)
+
+	// 5. 如果没有任何输入，返回空map
+	if len(mergedInput) == 0 {
+		return map[string]any{}, nil
+	}
+
+	return mergedInput, nil
 }
 
 // processNodeOutput 处理节点输出数据
@@ -644,15 +665,22 @@ func (e *WorkflowEngine) GetNodeResult(workflowID, serialID, nodeID string) (*co
 }
 
 // buildExecutionPlan 构建执行计划
-func (e *WorkflowEngine) buildExecutionPlan(def *core.WorkflowDef) (*ExecutionPlan, error) {
+func (e *WorkflowEngine) buildExecutionPlan(ctx context.Context, def *core.WorkflowDef) (*ExecutionPlan, error) {
 	// 构建依赖图
 	graph := make(map[string][]string)
 	inDegree := make(map[string]int)
 
 	// 初始化入度
-	for nodeID := range def.Nodes {
+	for nodeID, def := range def.Nodes {
 		inDegree[nodeID] = 0
 		graph[nodeID] = []string{}
+		// 迭代组件初始化
+		if def.Type == "iteration" {
+			err := e.RegisterWorkflow(ctx, &def.SubWorkflow)
+			if err != nil {
+				return nil, fmt.Errorf("迭代组件初始化失败: %v", err)
+			}
+		}
 	}
 
 	// 构建图结构
@@ -816,12 +844,13 @@ func (e *WorkflowEngine) Cleanup() {
 	for id, executor := range e.executorPool {
 		close(executor.shutdownCh)
 		delete(e.executorPool, id)
+		fmt.Printf("关闭执行器: %s\n", executor.definition.ID)
 	}
 	e.mu.Unlock()
 }
 
 // GetMetrics 获取指定工作流的指标
-func (e *WorkflowEngine) GetMetrics(workflowID string) (*WorkflowMetrics, bool) {
+func (e *WorkflowEngine) GetMetrics(workflowID string) (*core.WorkflowMetrics, bool) {
 	if !e.config.EnableMetrics {
 		return nil, false
 	}
@@ -860,7 +889,7 @@ func (e *WorkflowEngine) ListWorkflows() []string {
 }
 
 // GetWorkflowStatus 获取工作流状态
-func (e *WorkflowEngine) GetWorkflowStatus(workflowID string) (WorkflowStatus, bool) {
+func (e *WorkflowEngine) GetWorkflowStatus(workflowID string) (core.WorkflowStatus, bool) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 

@@ -26,7 +26,7 @@ type Component interface {
 }
 
 // ComponentFactory 组件工厂
-func ComponentFactory(nodeType string, nodeConfig *core.NodeDefinition) (Component, error) {
+func ComponentFactory(e core.WorkflowEngine, nodeType string, nodeConfig *core.NodeDefinition) (Component, error) {
 	jsonConfig, err := json.Marshal(nodeConfig.Config)
 	if err != nil {
 		return nil, fmt.Errorf("component configuration serialization failed: %v", err)
@@ -42,6 +42,8 @@ func ComponentFactory(nodeType string, nodeConfig *core.NodeDefinition) (Compone
 		return NewCodejsComponent(jsonConfig)
 	case "branch":
 		return NewBranchComponent(jsonConfig)
+	case "iteration":
+		return NewIterationComponent(e, jsonConfig)
 	}
 	return nil, fmt.Errorf("Component type not found: %s", nodeType)
 }

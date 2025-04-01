@@ -8,24 +8,6 @@ import (
 	"github.com/XXueTu/workflow/pkg/core"
 )
 
-// WorkflowStatus 表示工作流的状态
-type WorkflowStatus string
-
-const (
-	WorkflowStatusActive    WorkflowStatus = "active"
-	WorkflowStatusDeploying WorkflowStatus = "deploying"
-	WorkflowStatusShutdown  WorkflowStatus = "shutdown"
-)
-
-// WorkflowMetrics 工作流指标
-type WorkflowMetrics struct {
-	ActiveExecutions     int64
-	CompletedExecutions  int64
-	FailedExecutions     int64
-	AverageExecutionTime float64
-	LastExecutionTime    time.Time
-}
-
 type EngineConfig struct {
 	InitialPoolSize        int           // 初始池大小
 	MaxPoolSize            int           // 最大池大小
@@ -39,7 +21,7 @@ type EngineConfig struct {
 
 // MetricsCollector 指标收集器
 type MetricsCollector struct {
-	metrics map[string]*WorkflowMetrics
+	metrics map[string]*core.WorkflowMetrics
 	mu      sync.RWMutex
 }
 
@@ -50,13 +32,13 @@ type Executor struct {
 	execContexts    sync.Map // 使用sync.Map替代map+mutex提高并发性能
 	totalNodes      int64
 	env             map[string]any
-	status          WorkflowStatus   // 工作流状态
-	metrics         *WorkflowMetrics // 工作流指标
-	activeCount     int64            // 活跃执行计数
-	lastAccessed    int64            // 最后访问时间戳
-	createdAt       time.Time        // 创建时间
-	defaultTTL      time.Duration    // 默认TTL
-	shutdownCh      chan struct{}    // 关闭通道
+	status          core.WorkflowStatus   // 工作流状态
+	metrics         *core.WorkflowMetrics // 工作流指标
+	activeCount     int64                 // 活跃执行计数
+	lastAccessed    int64                 // 最后访问时间戳
+	createdAt       time.Time             // 创建时间
+	defaultTTL      time.Duration         // 默认TTL
+	shutdownCh      chan struct{}         // 关闭通道
 }
 
 // ExecutionTask 表示一个执行任务

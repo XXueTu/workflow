@@ -90,7 +90,7 @@ func main() {
 		return
 	}
 	httpResultBytes, _ := json.MarshalIndent(httpResult, "", "  ")
-	log.Printf("工作流执行结果:\n%s", string(httpResultBytes))
+	log.Printf("http:工作流执行结果:\n%s", string(httpResultBytes))
 
 	// // 执行工作流并统计时间
 	// startTime := time.Now()
