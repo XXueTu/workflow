@@ -95,8 +95,6 @@ func NewWorkflowEngine(opts ...Option) *WorkflowEngine {
 
 // RegisterWorkflow 注册工作流
 func (e *WorkflowEngine) RegisterWorkflow(ctx context.Context, def *core.WorkflowDef) error {
-	e.mu.Lock()
-	defer e.mu.Unlock()
 
 	// 检查并处理已存在的工作流
 	if err := e.handleExistingWorkflow(def.ID); err != nil {
@@ -126,6 +124,8 @@ func (e *WorkflowEngine) RegisterWorkflow(ctx context.Context, def *core.Workflo
 
 // handleExistingWorkflow 处理已存在的工作流
 func (e *WorkflowEngine) handleExistingWorkflow(workflowID string) error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if existing, exists := e.executorPool[workflowID]; exists {
 		atomic.StoreInt64(&existing.lastAccessed, time.Now().UnixNano())
 		existing.status = core.WorkflowStatusDeploying
@@ -151,6 +151,8 @@ func (e *WorkflowEngine) createExecutor(def *core.WorkflowDef, plan *ExecutionPl
 
 // registerExecutor 注册执行器
 func (e *WorkflowEngine) registerExecutor(workflowID string, executor *Executor) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	e.executorPool[workflowID] = executor
 
 	if e.config.EnableMetrics {
@@ -248,12 +250,17 @@ func (e *WorkflowEngine) ExecuteWorkflow(ctx context.Context, workflowID string,
 
 	// 创建带超时的上下文
 	execCtx, cancel := context.WithTimeout(ctx, e.config.ExecutionTimeout)
-	defer cancel()
 
 	// 创建执行上下文
 	executionContext := core.NewExecutionContext(execCtx, serialID, executor.totalNodes, params)
 	executionContext.Context = execCtx
 	executionContext.Expiration = time.Now().Add(executor.defaultTTL)
+
+	// 存储取消函数到执行上下文中，以便在暂停时可以取消
+	executionContext.SetVariable("cancel", cancel)
+
+	// 设置初始状态为运行中
+	executionContext.State.Status = core.StatusRunning
 
 	// 存储执行上下文（使用sync.Map避免锁争用）
 	executor.execContexts.Store(serialID, executionContext)
@@ -298,10 +305,14 @@ func (e *WorkflowEngine) ExecuteWorkflow(ctx context.Context, workflowID string,
 	if err != nil {
 		executionContext.State.Status = core.StatusFailed
 		executionContext.SetError("workflow", err)
+		// 确保调用取消函数
+		cancel()
 		return err
 	}
 
 	executionContext.State.Status = core.StatusCompleted
+	// 确保调用取消函数
+	cancel()
 	return nil
 }
 
@@ -378,7 +389,8 @@ func (e *WorkflowEngine) checkContext(ctx context.Context, executor *Executor) e
 
 // handleNodeExecution 处理节点执行
 func (e *WorkflowEngine) handleNodeExecution(execCtx *core.ExecutionContext, executor *Executor, node *WorkflowNode, sw *sync.WaitGroup) error {
-	if node.Type == "start" {
+	// 开始类型的组件跳过路由检查
+	if node.Type == components.Start || node.Type == components.StartItem {
 		sw.Done()
 		return e.executeStartNode(execCtx, node)
 	}
@@ -520,7 +532,7 @@ func (e *WorkflowEngine) prepareNodeInput(ctx *core.ExecutionContext, node *core
 
 // processNodeOutput 处理节点输出数据
 func (e *WorkflowEngine) processNodeOutput(input any, result *core.Result, node *core.NodeDefinition) (any, error) {
-	if node.Type == "end" {
+	if node.Type == components.End || node.Type == components.EndItem {
 		return input, nil
 	}
 
@@ -676,7 +688,8 @@ func (e *WorkflowEngine) buildExecutionPlan(ctx context.Context, def *core.Workf
 		graph[nodeID] = []string{}
 		// 迭代组件初始化
 		if def.Type == "iteration" {
-			err := e.RegisterWorkflow(ctx, &def.SubWorkflow)
+			fmt.Printf("迭代组件初始化: %s\n", def.ID)
+			err := e.RegisterWorkflow(ctx, def.SubWorkflow)
 			if err != nil {
 				return nil, fmt.Errorf("迭代组件初始化失败: %v", err)
 			}
@@ -899,4 +912,62 @@ func (e *WorkflowEngine) GetWorkflowStatus(workflowID string) (core.WorkflowStat
 	}
 
 	return executor.status, true
+}
+
+// PauseWorkflow 暂停工作流执行
+func (e *WorkflowEngine) PauseWorkflow(ctx context.Context, workflowID string, serialID string) error {
+	// 获取工作流执行器
+	e.mu.RLock()
+	executor, ok := e.executorPool[workflowID]
+	e.mu.RUnlock()
+
+	if !ok {
+		return fmt.Errorf("工作流未找到: %s", workflowID)
+	}
+
+	// 检查工作流状态
+	if executor.status == core.WorkflowStatusShutdown {
+		return fmt.Errorf("工作流正在关闭: %s", workflowID)
+	}
+
+	// 使用sync.Map获取执行上下文
+	val, ok := executor.execContexts.Load(serialID)
+	if !ok {
+		return fmt.Errorf("工作流执行实例未找到: %s, %s", workflowID, serialID)
+	}
+
+	execCtx, ok := val.(*core.ExecutionContext)
+	if !ok {
+		return fmt.Errorf("工作流执行上下文类型错误: %s, %s", workflowID, serialID)
+	}
+
+	// 检查执行状态
+	if execCtx.State.Status != core.StatusRunning {
+		return fmt.Errorf("工作流执行状态不是运行中: %s, %s, 当前状态: %s",
+			workflowID, serialID, execCtx.State.Status)
+	}
+
+	// 更新执行状态为暂停
+	execCtx.State.Status = core.StatusPaused
+
+	// 获取并调用取消函数
+	cancelVal, ok := execCtx.GetVariable("cancel")
+	if !ok {
+		return fmt.Errorf("无法获取取消函数: %s, %s", workflowID, serialID)
+	}
+
+	cancel, ok := cancelVal.(context.CancelFunc)
+	if !ok {
+		return fmt.Errorf("取消函数类型错误: %s, %s", workflowID, serialID)
+	}
+
+	// 调用取消函数
+	cancel()
+
+	// 更新指标
+	if e.config.EnableMetrics {
+		atomic.AddInt64(&executor.metrics.PausedExecutions, 1)
+	}
+
+	return nil
 }

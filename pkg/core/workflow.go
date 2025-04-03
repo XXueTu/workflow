@@ -53,5 +53,5 @@ type NodeDefinition struct {
 	// 组件配置
 	Config map[string]any `json:"config"`
 	// 迭代
-	SubWorkflow WorkflowDef `json:"subWorkflow"`
+	SubWorkflow *WorkflowDef `json:"subWorkflow,omitempty"`
 }

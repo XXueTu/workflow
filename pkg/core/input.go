@@ -49,8 +49,8 @@ func extractDataByPath(data any, path string) (any, error) {
 }
 
 // 类型检查和转换
-func validateAndConvertType(value any, expectedType string) (any, error) {
-	switch expectedType {
+func validateAndConvertType(value any, expectedType []string) (any, error) {
+	switch expectedType[0] {
 	case "string":
 		if str, ok := value.(string); ok {
 			return str, nil
@@ -91,6 +91,14 @@ func validateAndConvertType(value any, expectedType string) (any, error) {
 
 	case "array":
 		if arr, ok := value.([]any); ok {
+			// 解析expectedType[1]元素类型
+			elementType := expectedType[1]
+			for _, item := range arr {
+				_, err := validateAndConvertType(item, []string{elementType})
+				if err != nil {
+					return nil, fmt.Errorf("数组元素类型不匹配: %v", err)
+				}
+			}
 			return arr, nil
 		}
 		return nil, fmt.Errorf("类型不匹配: 期望 array, 实际是 %T", value)

@@ -19,9 +19,10 @@ func main() {
 	metrics.NewCollector()
 
 	// workflow, err := os.ReadFile("start.json")
-	workflow, err := os.ReadFile("start_http.json")
+	// workflow, err := os.ReadFile("start_http.json")
 	// workflow, err := os.ReadFile("start_http_parallel.json")
 	// workflow, err := os.ReadFile("start_js.json")
+	workflow, err := os.ReadFile("start_iteration.json")
 	// workflow, err := os.ReadFile("start_branch.json")
 	if err != nil {
 		log.Fatalf("读取工作流文件失败: %v", err)
@@ -48,6 +49,7 @@ func main() {
 	param := `
 {
 	"name": "cvl313pnhrgp7l45jlk0",
+	"auth": "Bearer ecab0d05783949c8a3169df8ab085a9c",
 	"age": 18,
 	"age1": 18,
 	"info": {

@@ -7,7 +7,7 @@ import (
 
 // ValidateOutput 验证输出数据是否符合Schema定义
 func ValidateOutput(data any, output Output) error {
-	switch output.Type {
+	switch output.Type[0] {
 	case "string":
 		if _, ok := data.(string); !ok {
 			return fmt.Errorf("输出 %s 必须是字符串类型", output.Name)
@@ -47,9 +47,9 @@ func ValidateOutput(data any, output Output) error {
 			return fmt.Errorf("输出 %s 必须是数组类型", output.Name)
 		}
 		// 如果有更复杂的数组元素验证，可以在这里添加
-		if output.ItemType != "" {
+		if output.Type[1] != "" {
 			if len(arr) > 0 {
-				err := ValidateOutput(arr[0], Output{Type: output.ItemType})
+				err := ValidateOutput(arr[0], Output{Type: []string{output.Type[1]}})
 				if err != nil {
 					return fmt.Errorf("数组 %s 的元素 %v 验证失败: %v", output.Name, arr[0], err)
 				}
@@ -82,7 +82,7 @@ func ParseOutput(data any, output Output) (any, error) {
 		return nil, err
 	}
 
-	switch output.Type {
+	switch output.Type[0] {
 	case "object":
 		obj := data.(map[string]any)
 		result := make(map[string]any)
@@ -115,6 +115,15 @@ func ParseOutput(data any, output Output) (any, error) {
 
 // ProcessNodeOutput 处理节点的所有输出
 func ProcessNodeOutput(data map[string]any, outputs []Output) (map[string]any, error) {
+	var panicErr error
+	// 处理 panics
+	defer func() {
+		if r := recover(); r != nil {
+			panicErr = fmt.Errorf("ProcessNodeOutput panic: %v", r)
+			fmt.Printf("ProcessNodeOutput panic: %v\n", r)
+		}
+	}()
+
 	result := make(map[string]any)
 	if len(data) == 0 {
 		return nil, nil
@@ -124,7 +133,7 @@ func ProcessNodeOutput(data map[string]any, outputs []Output) (map[string]any, e
 		value, exists := data[output.Name]
 		if !exists {
 			// 如果输入中没有对应的数据，使用默认值或零值代替
-			if output.Type == "object" {
+			if output.Type[0] == "object" {
 				r := make(map[string]any)
 				err := json.Unmarshal([]byte(output.DeftValue.(string)), &r)
 				if err != nil {
@@ -134,7 +143,7 @@ func ProcessNodeOutput(data map[string]any, outputs []Output) (map[string]any, e
 					result[output.Name] = r
 				}
 			} else {
-				switch output.Type {
+				switch output.Type[0] {
 				case "integer":
 					result[output.Name] = int64(0)
 				case "float":
@@ -162,6 +171,9 @@ func ProcessNodeOutput(data map[string]any, outputs []Output) (map[string]any, e
 
 		result[output.Name] = parsedValue
 		// fmt.Printf("输出 %s 已成功解析，类型: %s\n", output.Name, output.Type)
+	}
+	if panicErr != nil {
+		return nil, panicErr
 	}
 
 	return result, nil

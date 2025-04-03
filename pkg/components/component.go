@@ -18,6 +18,17 @@ const (
 	False = "false"
 )
 
+const (
+	Start     = "start"
+	End       = "end"
+	HTTP      = "http"
+	Codejs    = "codejs"
+	Branch    = "branch"
+	Iteration = "iteration"
+	StartItem = "start-item"
+	EndItem   = "end-item"
+)
+
 // Component 定义组件核心接口
 type Component interface {
 	Validate() []core.ValidationError
@@ -32,18 +43,22 @@ func ComponentFactory(e core.WorkflowEngine, nodeType string, nodeConfig *core.N
 		return nil, fmt.Errorf("component configuration serialization failed: %v", err)
 	}
 	switch nodeType {
-	case "start":
+	case Start:
 		return NewStartComponent()
-	case "end":
+	case End:
 		return NewEndComponent(jsonConfig)
-	case "http":
+	case HTTP:
 		return NewHTTPComponent(jsonConfig)
-	case "codejs":
+	case Codejs:
 		return NewCodejsComponent(jsonConfig)
-	case "branch":
+	case Branch:
 		return NewBranchComponent(jsonConfig)
-	case "iteration":
+	case Iteration:
 		return NewIterationComponent(e, jsonConfig)
+	case StartItem:
+		return NewStartItemComponent()
+	case EndItem:
+		return NewEndItemComponent(jsonConfig)
 	}
 	return nil, fmt.Errorf("Component type not found: %s", nodeType)
 }

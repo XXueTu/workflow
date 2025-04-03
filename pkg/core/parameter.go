@@ -16,9 +16,9 @@ type ValidationError struct {
 }
 
 type Inputs struct {
-	Name  string `json:"name"`  // 输入的 name 定义
-	Type  string `json:"type"`  // 输入的类型
-	Value Value  `json:"value"` // 输入的值
+	Name  string   `json:"name"`  // 输入的 name 定义
+	Type  []string `json:"type"`  // 输入的类型
+	Value Value    `json:"value"` // 输入的值
 }
 
 type Value struct {
@@ -36,8 +36,7 @@ type Content struct {
 // Output 表示每个输出的结构
 type Output struct {
 	Name      string   `json:"name"`      // 输出的名称
-	Type      string   `json:"type"`      // 输出的类型
-	ItemType  string   `json:"itemType"`  // 输出的 itemType 定义
+	Type      []string `json:"type"`      // 输出的类型
 	DeftValue any      `json:"deftValue"` // 输出的默认值
 	Desc      string   `json:"desc"`      // 输出的描述
 	Schema    []Output `json:"schema"`    // 输出的 schema 定义

@@ -19,34 +19,34 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "有效的字符串类型",
 			data:    "测试字符串",
-			output:  Output{Name: "testString", Type: "string"},
+			output:  Output{Name: "testString", Type: []string{"string"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的字符串类型",
 			data:    123,
-			output:  Output{Name: "testString", Type: "string"},
+			output:  Output{Name: "testString", Type: []string{"string"}},
 			wantErr: true,
 			errMsg:  "输出 testString 必须是字符串类型",
 		},
 		// 整数类型测试
 		{
 			name:    "有效的整数类型",
-			data:    float64(123),
-			output:  Output{Name: "testInt", Type: "integer"},
+			data:    int64(123),
+			output:  Output{Name: "testInt", Type: []string{"integer"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的整数类型(浮点数)",
 			data:    123.45,
-			output:  Output{Name: "testInt", Type: "integer"},
+			output:  Output{Name: "testInt", Type: []string{"integer"}},
 			wantErr: true,
 			errMsg:  "输出 testInt 必须是整数类型，不能有小数部分",
 		},
 		{
 			name:    "无效的整数类型(非数字)",
 			data:    "123",
-			output:  Output{Name: "testInt", Type: "integer"},
+			output:  Output{Name: "testInt", Type: []string{"integer"}},
 			wantErr: true,
 			errMsg:  "输出 testInt 必须是整数类型",
 		},
@@ -55,19 +55,19 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "有效的浮点数类型",
 			data:    float64(123.45),
-			output:  Output{Name: "testFloat", Type: "float"},
+			output:  Output{Name: "testFloat", Type: []string{"float"}},
 			wantErr: false,
 		},
 		{
 			name:    "整数作为浮点数类型(自动转换)",
 			data:    float64(123),
-			output:  Output{Name: "testFloat", Type: "float"},
+			output:  Output{Name: "testFloat", Type: []string{"float"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的浮点数类型",
 			data:    "123.45",
-			output:  Output{Name: "testFloat", Type: "float"},
+			output:  Output{Name: "testFloat", Type: []string{"float"}},
 			wantErr: true,
 			errMsg:  "输出 testFloat 必须是浮点数类型",
 		},
@@ -76,19 +76,19 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "有效的布尔类型true",
 			data:    true,
-			output:  Output{Name: "testBool", Type: "boolean"},
+			output:  Output{Name: "testBool", Type: []string{"boolean"}},
 			wantErr: false,
 		},
 		{
 			name:    "有效的布尔类型false",
 			data:    false,
-			output:  Output{Name: "testBool", Type: "boolean"},
+			output:  Output{Name: "testBool", Type: []string{"boolean"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的布尔类型",
 			data:    "true",
-			output:  Output{Name: "testBool", Type: "boolean"},
+			output:  Output{Name: "testBool", Type: []string{"boolean"}},
 			wantErr: true,
 			errMsg:  "输出 testBool 必须是布尔类型",
 		},
@@ -97,19 +97,19 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "有效的数组类型",
 			data:    []any{"item1", "item2"},
-			output:  Output{Name: "testArray", Type: "array"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "空数组类型",
 			data:    []any{},
-			output:  Output{Name: "testArray", Type: "array"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的数组类型",
 			data:    "not an array",
-			output:  Output{Name: "testArray", Type: "array"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: true,
 			errMsg:  "输出 testArray 必须是数组类型",
 		},
@@ -123,10 +123,10 @@ func TestValidateOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string"},
-					{Name: "age", Type: "integer"},
+					{Name: "name", Type: []string{"string"}},
+					{Name: "age", Type: []string{"integer"}},
 				},
 			},
 			wantErr: false,
@@ -139,10 +139,10 @@ func TestValidateOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string"},
-					{Name: "age", Type: "integer"},
+					{Name: "name", Type: []string{"string"}},
+					{Name: "age", Type: []string{"integer"}},
 				},
 			},
 			wantErr: true,
@@ -156,10 +156,10 @@ func TestValidateOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string"},
-					{Name: "age", Type: "integer"},
+					{Name: "name", Type: []string{"string"}},
+					{Name: "age", Type: []string{"integer"}},
 				},
 			},
 			wantErr: true,
@@ -168,7 +168,7 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "无效的对象类型",
 			data:    "not an object",
-			output:  Output{Name: "testObject", Type: "object", Schema: []Output{}},
+			output:  Output{Name: "testObject", Type: []string{"object"}, Schema: []Output{}},
 			wantErr: true,
 			errMsg:  "输出 testObject 必须是对象类型",
 		},
@@ -182,14 +182,14 @@ func TestValidateOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testNestedObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
 					{
 						Name: "person",
-						Type: "object",
+						Type: []string{"object"},
 						Schema: []Output{
-							{Name: "name", Type: "string"},
-							{Name: "age", Type: "integer"},
+							{Name: "name", Type: []string{"string"}},
+							{Name: "age", Type: []string{"integer"}},
 						},
 					},
 				},
@@ -199,52 +199,52 @@ func TestValidateOutput(t *testing.T) {
 		{
 			name:    "有效的字符串数组",
 			data:    []any{"item1", "item2"},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "string"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "有效的数字数组",
 			data:    []any{float64(1), float64(2), float64(3)},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "integer"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "有效的混合数组(未指定itemType)",
 			data:    []any{"item1", float64(2), true},
-			output:  Output{Name: "testArray", Type: "array"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的字符串数组(含数字)",
 			data:    []any{"item1", float64(2)},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "string"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: true,
 			errMsg:  "数组 testArray 的元素必须是字符串类型",
 		},
 		{
 			name:    "无效的整数数组(含小数)",
 			data:    []any{float64(1), float64(2.5)},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "integer"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: true,
 			errMsg:  "数组 testArray 的元素必须是整数类型",
 		},
 		{
 			name:    "无效的整数数组(含字符串)",
 			data:    []any{float64(1), "2"},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "integer"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: true,
 			errMsg:  "数组 testArray 的元素必须是整数类型",
 		},
 		{
 			name:    "空数组类型",
 			data:    []any{},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "string"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: false,
 		},
 		{
 			name:    "无效的数组类型",
 			data:    "not an array",
-			output:  Output{Name: "testArray", Type: "array", ItemType: "string"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			wantErr: true,
 			errMsg:  "输出 testArray 必须是数组类型",
 		},
@@ -255,12 +255,11 @@ func TestValidateOutput(t *testing.T) {
 				map[string]any{"name": "李四", "age": float64(25)},
 			},
 			output: Output{
-				Name:     "testObjectArray",
-				Type:     "array",
-				ItemType: "object",
+				Name: "testObjectArray",
+				Type: []string{"array"},
 				Schema: []Output{
-					{Name: "name", Type: "string"},
-					{Name: "age", Type: "integer"},
+					{Name: "name", Type: []string{"string"}},
+					{Name: "age", Type: []string{"integer"}},
 				},
 			},
 			wantErr: false,
@@ -272,12 +271,11 @@ func TestValidateOutput(t *testing.T) {
 				map[string]any{"name": "李四"}, // 缺少age字段
 			},
 			output: Output{
-				Name:     "testObjectArray",
-				Type:     "array",
-				ItemType: "object",
+				Name: "testObjectArray",
+				Type: []string{"array"},
 				Schema: []Output{
-					{Name: "name", Type: "string"},
-					{Name: "age", Type: "integer"},
+					{Name: "name", Type: []string{"string"}},
+					{Name: "age", Type: []string{"integer"}},
 				},
 			},
 			wantErr: true,
@@ -290,11 +288,10 @@ func TestValidateOutput(t *testing.T) {
 				[]any{"c", "d"},
 			},
 			output: Output{
-				Name:     "testNestedArray",
-				Type:     "array",
-				ItemType: "array",
+				Name: "testNestedArray",
+				Type: []string{"array"},
 				Schema: []Output{
-					{Type: "string"},
+					{Type: []string{"string"}},
 				},
 			},
 			wantErr: false,
@@ -334,21 +331,21 @@ func TestParseOutput(t *testing.T) {
 		{
 			name:    "解析字符串类型",
 			data:    "测试字符串",
-			output:  Output{Name: "testString", Type: "string"},
+			output:  Output{Name: "testString", Type: []string{"string"}},
 			want:    "测试字符串",
 			wantErr: false,
 		},
 		{
 			name:    "解析整数类型",
 			data:    float64(123),
-			output:  Output{Name: "testInt", Type: "integer"},
+			output:  Output{Name: "testInt", Type: []string{"integer"}},
 			want:    float64(123),
 			wantErr: false,
 		},
 		{
 			name:    "解析无效整数类型",
 			data:    "123",
-			output:  Output{Name: "testInt", Type: "integer"},
+			output:  Output{Name: "testInt", Type: []string{"integer"}},
 			want:    nil,
 			wantErr: true,
 		},
@@ -357,7 +354,7 @@ func TestParseOutput(t *testing.T) {
 		{
 			name:    "解析数组类型",
 			data:    []any{"item1", "item2"},
-			output:  Output{Name: "testArray", Type: "array"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			want:    []any{"item1", "item2"},
 			wantErr: false,
 		},
@@ -371,10 +368,10 @@ func TestParseOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string", DeftValue: ""},
-					{Name: "age", Type: "integer", DeftValue: float64(0)},
+					{Name: "name", Type: []string{"string"}, DeftValue: ""},
+					{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 				},
 			},
 			want: map[string]any{
@@ -391,10 +388,10 @@ func TestParseOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string", DeftValue: ""},
-					{Name: "age", Type: "integer", DeftValue: float64(0)},
+					{Name: "name", Type: []string{"string"}, DeftValue: ""},
+					{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 				},
 			},
 			want: map[string]any{
@@ -413,14 +410,14 @@ func TestParseOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testNestedObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
 					{
 						Name: "person",
-						Type: "object",
+						Type: []string{"object"},
 						Schema: []Output{
-							{Name: "name", Type: "string", DeftValue: ""},
-							{Name: "age", Type: "integer", DeftValue: float64(0)},
+							{Name: "name", Type: []string{"string"}, DeftValue: ""},
+							{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 						},
 						DeftValue: map[string]interface{}{},
 					},
@@ -442,10 +439,10 @@ func TestParseOutput(t *testing.T) {
 			},
 			output: Output{
 				Name: "testObject",
-				Type: "object",
+				Type: []string{"object"},
 				Schema: []Output{
-					{Name: "name", Type: "string", DeftValue: ""},
-					{Name: "age", Type: "integer", DeftValue: float64(0)},
+					{Name: "name", Type: []string{"string"}, DeftValue: ""},
+					{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 				},
 			},
 			want:    nil,
@@ -454,14 +451,14 @@ func TestParseOutput(t *testing.T) {
 		{
 			name:    "解析字符串数组",
 			data:    []any{"item1", "item2"},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "string"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			want:    []any{"item1", "item2"},
 			wantErr: false,
 		},
 		{
 			name:    "解析数字数组",
 			data:    []any{float64(1), float64(2)},
-			output:  Output{Name: "testArray", Type: "array", ItemType: "integer"},
+			output:  Output{Name: "testArray", Type: []string{"array"}},
 			want:    []any{float64(1), float64(2)},
 			wantErr: false,
 		},
@@ -472,12 +469,11 @@ func TestParseOutput(t *testing.T) {
 				map[string]any{"name": "李四", "age": float64(25)},
 			},
 			output: Output{
-				Name:     "testObjectArray",
-				Type:     "array",
-				ItemType: "object",
+				Name: "testObjectArray",
+				Type: []string{"array"},
 				Schema: []Output{
-					{Name: "name", Type: "string", DeftValue: ""},
-					{Name: "age", Type: "integer", DeftValue: float64(0)},
+					{Name: "name", Type: []string{"string"}, DeftValue: ""},
+					{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 				},
 			},
 			want: []any{
@@ -490,9 +486,12 @@ func TestParseOutput(t *testing.T) {
 			name: "解析无效的字符串数组",
 			data: []any{"item1", float64(2)},
 			output: Output{
-				Name:     "testArray",
-				Type:     "array",
-				ItemType: "string",
+				Name: "testArray",
+				Type: []string{"array"},
+				Schema: []Output{
+					{Name: "name", Type: []string{"string"}, DeftValue: ""},
+					{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
+				},
 			},
 			want:    nil,
 			wantErr: true,
@@ -535,8 +534,8 @@ func TestProcessNodeOutput(t *testing.T) {
 				"age":  float64(30),
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
-				{Name: "age", Type: "integer", DeftValue: float64(0)},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
+				{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 			},
 			want: map[string]any{
 				"name": "张三",
@@ -551,9 +550,9 @@ func TestProcessNodeOutput(t *testing.T) {
 				// 缺少age和gender字段
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
-				{Name: "age", Type: "integer", DeftValue: float64(0)},
-				{Name: "gender", Type: "string", DeftValue: "未知"},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
+				{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
+				{Name: "gender", Type: []string{"string"}, DeftValue: "未知"},
 			},
 			want: map[string]any{
 				"name":   "张三",
@@ -569,8 +568,8 @@ func TestProcessNodeOutput(t *testing.T) {
 				"age":  "三十岁", // 类型错误，应该是整数
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
-				{Name: "age", Type: "integer", DeftValue: float64(0)},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
+				{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 			},
 			want:    nil,
 			wantErr: true,
@@ -588,19 +587,19 @@ func TestProcessNodeOutput(t *testing.T) {
 				"tags": []any{"学生", "程序员"},
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
 				{
 					Name: "info",
-					Type: "object",
+					Type: []string{"object"},
 					Schema: []Output{
-						{Name: "city", Type: "string", DeftValue: ""},
-						{Name: "country", Type: "string", DeftValue: ""},
-						{Name: "height", Type: "float", DeftValue: float64(0)},
-						{Name: "email", Type: "array", DeftValue: []any{}},
+						{Name: "city", Type: []string{"string"}, DeftValue: ""},
+						{Name: "country", Type: []string{"string"}, DeftValue: ""},
+						{Name: "height", Type: []string{"float"}, DeftValue: float64(0)},
+						{Name: "email", Type: []string{"array"}, DeftValue: []any{}},
 					},
 					DeftValue: map[string]any{},
 				},
-				{Name: "tags", Type: "array", DeftValue: []any{}},
+				{Name: "tags", Type: []string{"array"}, DeftValue: []any{}},
 			},
 			want: map[string]any{
 				"name": "张三",
@@ -618,8 +617,8 @@ func TestProcessNodeOutput(t *testing.T) {
 			name: "处理空数据",
 			data: map[string]any{},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: "未命名"},
-				{Name: "age", Type: "integer", DeftValue: float64(0)},
+				{Name: "name", Type: []string{"string"}, DeftValue: "未命名"},
+				{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 			},
 			want: map[string]any{
 				"name": "未命名",
@@ -635,9 +634,9 @@ func TestProcessNodeOutput(t *testing.T) {
 				"scores": []any{float64(90), float64(85), float64(95)},
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
-				{Name: "tags", Type: "array", ItemType: "string", DeftValue: []any{}},
-				{Name: "scores", Type: "array", ItemType: "integer", DeftValue: []any{}},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
+				{Name: "tags", Type: []string{"array"}, DeftValue: []any{}},
+				{Name: "scores", Type: []string{"array"}, DeftValue: []any{}},
 			},
 			want: map[string]any{
 				"name":   "张三",
@@ -653,8 +652,8 @@ func TestProcessNodeOutput(t *testing.T) {
 				"tags": []any{"学生", 123}, // 类型错误
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
-				{Name: "tags", Type: "array", ItemType: "string", DeftValue: []any{}},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
+				{Name: "tags", Type: []string{"array"}, DeftValue: []any{}},
 			},
 			want:    nil,
 			wantErr: true,
@@ -669,14 +668,13 @@ func TestProcessNodeOutput(t *testing.T) {
 				},
 			},
 			outputs: []Output{
-				{Name: "name", Type: "string", DeftValue: ""},
+				{Name: "name", Type: []string{"string"}, DeftValue: ""},
 				{
-					Name:     "friends",
-					Type:     "array",
-					ItemType: "object",
+					Name: "friends",
+					Type: []string{"array"},
 					Schema: []Output{
-						{Name: "name", Type: "string", DeftValue: ""},
-						{Name: "age", Type: "integer", DeftValue: float64(0)},
+						{Name: "name", Type: []string{"string"}, DeftValue: ""},
+						{Name: "age", Type: []string{"integer"}, DeftValue: float64(0)},
 					},
 					DeftValue: []any{},
 				},

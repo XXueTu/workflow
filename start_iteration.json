@@ -1,0 +1,465 @@
+{
+    "id": "workflow-001",
+    "name": "Sample Workflow",
+    "description": "This is a sample workflow definition",
+    "version": "1.0.0",
+    "createTime": "2023-10-01T12:00:00Z",
+    "updateTime": "2023-10-02T14:30:00Z",
+    "nodes": {
+        "start-node-1": {
+            "id": "start-node-1",
+            "name": "Start Node",
+            "type": "start",
+            "outputs": [
+                {
+                    "name": "name",
+                    "type": [
+                        "string"
+                    ],
+                    "deftValue": "",
+                    "desc": "姓名",
+                    "schema": []
+                },
+                {
+                    "name": "address",
+                    "type": [
+                        "array",
+                        "string"
+                    ],
+                    "deftValue": "",
+                    "desc": "地址",
+                    "schema": []
+                },
+                {
+                    "name": "auth",
+                    "type": [
+                        "string"
+                    ],
+                    "deftValue": "",
+                    "desc": "认证",
+                    "schema": []
+                }
+            ]
+        },
+        "iteration-node-1": {
+            "id": "iteration-node-1",
+            "name": "Iteration Node",
+            "type": "iteration",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": [
+                        "string"
+                    ],
+                    "value": {
+                        "content": {
+                            "name": "name",
+                            "value": "",
+                            "blockId": "start-node-1"
+                        },
+                        "type": "ref"
+                    }
+                },
+                {
+                    "name": "auth",
+                    "type": [
+                        "string"
+                    ],
+                    "value": {
+                        "content": {
+                            "name": "auth",
+                            "value": "",
+                            "blockId": "start-node-1"
+                        },
+                        "type": "ref"
+                    }
+                }
+            ],
+            "config": {
+                "subWorkflowId": "workflow-002",
+                "iterationType": "array",
+                "iterationValue": {
+                    "name": "addr",
+                    "type": [
+                        "array",
+                        "string"
+                    ],
+                    "value": {
+                        "content": {
+                            "name": "address",
+                            "value": "",
+                            "blockId": "start-node-1"
+                        },
+                        "type": "ref"
+                    }
+                }
+            },
+            "outputs": [
+                {
+                    "name": "result",
+                    "type": [
+                        "array",
+                        "object"
+                    ],
+                    "desc": "结果",
+                    "schema": [
+                        {
+                            "name": "addr",
+                            "type": [
+                                "string"
+                            ],
+                            "desc": "地址"
+                        },
+                        {
+                            "name": "index",
+                            "type": [
+                                "integer"
+                            ],
+                            "desc": "索引"
+                        },
+                        {
+                            "name": "md5",
+                            "type": [
+                                "string"
+                            ],
+                            "desc": "md5"
+                        }
+                    ]
+                }
+            ],
+            "subWorkflow": {
+                "id": "workflow-002",
+                "nodes": {
+                    "start-item-node": {
+                        "id": "start-item-node",
+                        "name": "Start Item Node",
+                        "type": "start-item",
+                        "outputs": [
+                            {
+                                "name": "addr",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "地址"
+                            },
+                            {
+                                "name": "name",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "姓名"
+                            },
+                            {
+                                "name": "auth",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "认证"
+                            },
+                            {
+                                "name": "_index",
+                                "type": [
+                                    "integer"
+                                ],
+                                "desc": "索引"
+                            }
+                        ]
+                    },
+                    "http-node-2": {
+                        "id": "http-node-2",
+                        "name": "HTTP Node",
+                        "type": "http",
+                        "inputs": [],
+                        "config": {
+                            "url": "http://10.99.169.49:8889/api/role/v1/cvl313pnhrgp7l45jlk0",
+                            "method": "POST",
+                            "timeout": 3,
+                            "retries": 2,
+                            "headers": [
+                                {
+                                    "name": "Content-Type",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "value": {
+                                        "content": {
+                                            "name": "Content-Type",
+                                            "value": "application/json"
+                                        },
+                                        "type": "fix"
+                                    }
+                                },
+                                {
+                                    "name": "Authorization",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "value": {
+                                        "content": {
+                                            "name": "auth",
+                                            "value": "",
+                                            "blockId": "start-item-node"
+                                        },
+                                        "type": "ref"
+                                    }
+                                }
+                            ],
+                            "params": [],
+                            "body": [
+                                {
+                                    "name": "name",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "value": {
+                                        "content": {
+                                            "name": "name",
+                                            "value": "",
+                                            "blockId": "start-item-node"
+                                        },
+                                        "type": "ref"
+                                    }
+                                },
+                                {
+                                    "name": "address",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "value": {
+                                        "content": {
+                                            "name": "addr",
+                                            "value": "",
+                                            "blockId": "start-item-node"
+                                        },
+                                        "type": "ref"
+                                    }
+                                },
+                                {
+                                    "name": "index",
+                                    "type": [
+                                        "integer"
+                                    ],
+                                    "value": {
+                                        "content": {
+                                            "name": "_index",
+                                            "value": "",
+                                            "blockId": "start-item-node"
+                                        },
+                                        "type": "ref"
+                                    }
+                                }
+                            ]
+                        },
+                        "outputs": [
+                            {
+                                "name": "body",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "响应体"
+                            },
+                            {
+                                "name": "statusCode",
+                                "type": [
+                                    "integer"
+                                ],
+                                "desc": "状态码"
+                            },
+                            {
+                                "name": "headers",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "响应头"
+                            }
+                        ]
+                    },
+                    "codejs-node-2": {
+                        "id": "codejs-node-2",
+                        "name": "Codejs Node",
+                        "type": "codejs",
+                        "inputs": [
+                            {
+                                "name": "name",
+                                "type": [
+                                    "string"
+                                ],
+                                "value": {
+                                    "content": {
+                                        "blockId": "start-item-node",
+                                        "name": "name",
+                                        "value": ""
+                                    },
+                                    "type": "ref"
+                                }
+                            },
+                            {
+                                "name": "info",
+                                "type": [
+                                    "string"
+                                ],
+                                "value": {
+                                    "content": {
+                                        "blockId": "http-node-2",
+                                        "name": "body",
+                                        "value": ""
+                                    },
+                                    "type": "ref"
+                                }
+                            }
+                        ],
+                        "config": {
+                            "code": "function main(params) { const parsedParams = JSON.parse(params.info); var result = {addr: parsedParams.address, index: parsedParams.index, \"md5\": gmd5(params.name), }; return result }"
+                        },
+                        "outputs": [
+                            {
+                                "name": "addr",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "地址"
+                            },
+                            {
+                                "name": "index",
+                                "type": [
+                                    "integer"
+                                ],
+                                "desc": "索引"
+                            },
+                            {
+                                "name": "md5",
+                                "type": [
+                                    "string"
+                                ],
+                                "desc": "md5"
+                            }
+                        ]
+                    },
+                    "end-item-node": {
+                        "id": "end-item-node",
+                        "name": "End Item Node",
+                        "type": "end-item",
+                        "inputs": [
+                            {
+                                "name": "addr",
+                                "type": [
+                                    "string"
+                                ],
+                                "value": {
+                                    "content": {
+                                        "blockId": "codejs-node-2",
+                                        "name": "addr",
+                                        "value": ""
+                                    },
+                                    "type": "ref"
+                                }
+                            },
+                            {
+                                "name": "index",
+                                "type": [
+                                    "integer"
+                                ],
+                                "value": {
+                                    "content": {
+                                        "blockId": "codejs-node-2",
+                                        "name": "index",
+                                        "value": ""
+                                    },
+                                    "type": "ref"
+                                }
+                            },
+                            {
+                                "name": "md5",
+                                "type": [
+                                    "string"
+                                ],
+                                "value": {
+                                    "content": {
+                                        "blockId": "codejs-node-2",
+                                        "name": "md5",
+                                        "value": ""
+                                    },
+                                    "type": "ref"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "connections": [
+                    {
+                        "from": "start-item-node",
+                        "to": "http-node-2",
+                        "condition": "success"
+                    },
+                    {
+                        "from": "http-node-2",
+                        "to": "codejs-node-2",
+                        "condition": "success"
+                    },
+                    {
+                        "from": "codejs-node-2",
+                        "to": "end-item-node",
+                        "condition": "success"
+                    }
+                ]
+            }
+        },
+        "end-node-1": {
+            "id": "end-node-1",
+            "name": "End Node",
+            "type": "end",
+            "inputs": [
+                {
+                    "name": "result",
+                    "type": [
+                        "array",
+                        "object"
+                    ],
+                    "value": {
+                        "content": {
+                            "blockId": "iteration-node-1",
+                            "name": "result",
+                            "value": ""
+                        },
+                        "type": "ref"
+                    }
+                },
+                {
+                    "name": "name",
+                    "type": [
+                        "string"
+                    ],
+                    "value": {
+                        "content": {
+                            "blockId": "start-node-1",
+                            "name": "name",
+                            "value": ""
+                        },
+                        "type": "ref"
+                    }
+                }
+            ]
+        }
+    },
+    "connections": [
+        {
+            "from": "start-node-1",
+            "to": "iteration-node-1",
+            "condition": "success"
+        },
+        {
+            "from": "iteration-node-1",
+            "to": "end-node-1",
+            "condition": "success"
+        }
+    ],
+    "config": {
+        "timeout": 30,
+        "retryPolicy": {
+            "maxAttempts": 3,
+            "interval": 5,
+            "maxInterval": 30,
+            "multiplier": 2.0
+        }
+    }
+}

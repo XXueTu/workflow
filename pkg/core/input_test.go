@@ -22,12 +22,12 @@ func TestParseNodeInputs(t *testing.T) {
 				inputs: []Inputs{
 					{
 						Name:  "input1",
-						Type:  "string",
+						Type:  []string{"string"},
 						Value: Value{Content: Content{BlockID: "parent1", Name: "output1"}},
 					},
 					{
 						Name:  "input2",
-						Type:  "integer",
+						Type:  []string{"integer"},
 						Value: Value{Content: Content{BlockID: "parent2", Name: "output2"}},
 					},
 				},
@@ -48,7 +48,7 @@ func TestParseNodeInputs(t *testing.T) {
 				inputs: []Inputs{
 					{
 						Name:  "input1",
-						Type:  "string",
+						Type:  []string{"string"},
 						Value: Value{Content: Content{BlockID: "parent1", Name: "output1"}},
 					},
 				},
@@ -65,7 +65,7 @@ func TestParseNodeInputs(t *testing.T) {
 				inputs: []Inputs{
 					{
 						Name:  "input1",
-						Type:  "integer",
+						Type:  []string{"integer"},
 						Value: Value{Content: Content{BlockID: "parent1", Name: "output1"}},
 					},
 				},

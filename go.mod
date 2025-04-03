@@ -9,6 +9,7 @@ go 1.24.0
 
 require (
 	github.com/dop251/goja v0.0.0-20250125213203-5ef83b82af17
+	github.com/google/uuid v1.6.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/panjf2000/ants/v2 v2.11.2
 	github.com/tidwall/gjson v1.18.0

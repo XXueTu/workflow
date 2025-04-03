@@ -13,89 +13,89 @@
             "outputs": [
                 {
                     "name": "name",
-                    "type": "string",
+                    "type": ["string"],
                     "deftValue": null,
                     "desc": "用户名称",
                     "schema": []
                 },
                 {
                     "name": "age",
-                    "type": "integer",
+                    "type": ["integer"],
                     "deftValue": 0,
                     "desc": "用户年龄",
                     "schema": []
                 },
                 {
                     "name": "age1",
-                    "type": "integer",
+                    "type": ["integer"],
                     "deftValue": 0,
                     "desc": "用户年龄1",
                     "schema": []
                 },
                 {
                     "name": "info",
-                    "type": "object",
+                    "type": ["object"],
                     "deftValue": {},
                     "desc": "用户信息对象",
                     "schema": [
                         {
                             "name": "city",
-                            "type": "string",
+                            "type": ["string"],
                             "deftValue": "",
                             "desc": "城市",
                             "schema": []
                         },
                         {
                             "name": "country",
-                            "type": "string",
+                            "type": ["string"],
                             "deftValue": "",
                             "desc": "国家",
                             "schema": []
                         },
                         {
                             "name": "height",
-                            "type": "float",
+                            "type": ["float"],
                             "deftValue": 0.0,
                             "desc": "身高",
                             "schema": []
                         },
                         {
                             "name": "weight",
-                            "type": "float",
+                            "type": ["float"],
                             "deftValue": 0.0,
                             "desc": "体重",
                             "schema": []
                         },
                         {
                             "name": "phone",
-                            "type": "integer",
+                            "type": ["integer"],
                             "deftValue": 0,
                             "desc": "电话号码",
                             "schema": []
                         },
                         {
                             "name": "email",
-                            "type": "array",
+                            "type": ["array", "string"],
                             "deftValue": [],
                             "desc": "电子邮件列表",
                             "schema": []
                         },
                         {
                             "name": "like",
-                            "type": "object",
+                            "type": ["object"],
                             "deftValue": {},
                             "desc": "喜好信息",
                             "schema": [
                                 {
                                     "name": "food",
-                                    "type": "array",
+                                    "type": ["array", "string"],
                                     "deftValue": [],
                                     "desc": "喜爱的食物",
                                     "schema": []
                                 },
                                 {
                                     "name": "sport",
-                                    "type": "array",
+                                    "type": ["array", "string"],
                                     "deftValue": [],
                                     "desc": "喜爱的运动",
                                     "schema": []
@@ -106,21 +106,21 @@
                 },
                 {
                     "name": "address",
-                    "type": "array",
+                    "type": ["array", "string"],
                     "deftValue": [],
                     "desc": "地址列表",
                     "schema": []
                 },
                 {
                     "name": "mritalStatus",
-                    "type": "boolean",
+                    "type": ["boolean"],
                     "deftValue": false,
                     "desc": "婚姻状态",
                     "schema": []
                 },
                 {
                     "name": "sight",
-                    "type": "float",
+                    "type": ["float"],
                     "deftValue": 0.0,
                     "desc": "视力",
                     "schema": []
@@ -137,7 +137,7 @@
                     {
                         "left": {
                             "name": "age",
-                            "type": "integer",
+                            "type": ["integer"],
                             "value": {
                                 "content": {
                                     "blockId": "start-node-1",
@@ -148,7 +148,7 @@
                         },
                         "right": {
                             "name": "age1",
-                            "type": "integer",
+                            "type": ["integer"],
                             "value": {
                                 "content": {
                                     "blockId": "start-node-1",
@@ -163,7 +163,7 @@
                     {
                         "left": {
                             "name": "address1",
-                            "type": "string",
+                            "type": ["string"],
                             "value": {
                                 "content": {
                                     "name": "address1",
@@ -174,7 +174,7 @@
                         },
                         "right": {
                             "name": "address",
-                            "type": "array",
+                            "type": ["array", "string"],
                             "value": {
                                 "content": {
                                     "blockId": "start-node-1",
@@ -202,7 +202,7 @@
             "outputs": [
                 {
                     "name": "branch",
-                    "type": "string",
+                    "type": ["string"],
                     "desc": "分支"
                 }
             ]
@@ -220,7 +220,7 @@
             "outputs": [
                 {
                     "name": "branch",
-                    "type": "string",
+                    "type": ["string"],
                     "desc": "分支"
                 }
             ]
@@ -238,7 +238,7 @@
             "outputs": [
                 {
                     "name": "branch",
-                    "type": "string",
+                    "type": ["string"],
                     "desc": "分支"
                 }
             ]
@@ -250,7 +250,7 @@
             "inputs": [
                 {
                     "name": "codejs-1",
-                    "type": "string",
+                    "type": ["string"],
                     "value": {
                         "content": {
                             "blockId": "codejs-node-1",
@@ -261,7 +261,7 @@
                 },
                 {
                     "name": "codejs-2",
-                    "type": "string",
+                    "type": ["string"],
                     "value": {
                         "content": {
                             "blockId": "codejs-node-2",
@@ -272,7 +272,7 @@
                 },
                 {
                     "name": "codejs-3",
-                    "type": "string",
+                    "type": ["string"],
                     "value": {
                         "content": {
                             "blockId": "codejs-node-3",

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"github.com/XXueTu/workflow/pkg/core"
 )
 
@@ -14,10 +16,10 @@ type IterationComponent struct {
 }
 
 type IterationConfig struct {
-	IterationType  string // array、index 0-
-	IterationValue core.Inputs
-	SubWorkflowId  string
-	workflowEngine core.WorkflowEngine
+	IterationType  string              `json:"iterationType"`
+	IterationValue core.Inputs         `json:"iterationValue"`
+	SubWorkflowId  string              `json:"subWorkflowId"`
+	workflowEngine core.WorkflowEngine `json:"-"`
 }
 
 var iterationComponentPool = sync.Pool{
@@ -38,7 +40,7 @@ func NewIterationComponent(e core.WorkflowEngine, config json.RawMessage) (*Iter
 }
 
 const (
-	iterVal = "iterVal"
+	iterationTotal = "iterationTotal"
 )
 
 // AnalyzeInputs implements Component.
@@ -67,23 +69,24 @@ func (i *IterationComponent) AnalyzeInputs(ctx context.Context) (any, error) {
 		if !ok {
 			return nil, fmt.Errorf("迭代值必须是数组类型")
 		}
-		input[iterVal] = arr
+		input[i.config.IterationValue.Name] = arr
 	case "index":
 		num, ok := value.(int64)
 		if !ok {
 			return nil, fmt.Errorf("迭代值必须是数字类型")
 		}
-		input[iterVal] = num
+		input[iterationTotal] = num
 	default:
 		return nil, fmt.Errorf("不支持的迭代类型: %s", i.config.IterationType)
 	}
-
 	return input, nil
 }
 
 // Execute implements Component.
 func (i *IterationComponent) Execute(ctx context.Context, input any) (*core.Result, error) {
-	switch i.config.IterationValue.Type {
+	r := []any{}
+	workflowID := i.config.SubWorkflowId
+	switch i.config.IterationValue.Type[0] {
 	case "array":
 		{
 			// 封装参数
@@ -91,17 +94,46 @@ func (i *IterationComponent) Execute(ctx context.Context, input any) (*core.Resu
 			if !ok {
 				return nil, fmt.Errorf("输入类型不匹配")
 			}
-			iterVal, ok := inputMap[iterVal].([]any)
+			iterVal, ok := inputMap[i.config.IterationValue.Name].([]any)
 			if !ok {
 				return nil, fmt.Errorf("迭代值类型不匹配")
 			}
-			for i, v := range iterVal {
-				fmt.Printf("迭代内容: %d,%+v\n", i, v)
+			// results := []core.NodeResult{}
+			for idx, v := range iterVal {
+				inputMap[i.config.IterationValue.Name] = v
+				inputMap["_index"] = idx
+				serialID := uuid.New().String()
+				err := i.config.workflowEngine.ExecuteWorkflow(ctx, workflowID, serialID, inputMap)
+				if err != nil {
+					return nil, fmt.Errorf("迭代执行失败: %w", err)
+				}
+				result, ok := i.config.workflowEngine.GetNodeResult(workflowID, serialID, "end-item-node")
+				if !ok {
+					return nil, fmt.Errorf("获取迭代执行结果失败")
+				}
+				// results = append(results, *result)
+				r = append(r, result.Output)
+				fmt.Printf(" 迭代索引: %d\n 迭代参数: %+v\n 迭代结果: %+v\n", idx, inputMap, result)
 			}
 		}
+	case "index":
+		{
+			// 封装参数
+			inputMap, ok := input.(map[string]any)
+			if !ok {
+				return nil, fmt.Errorf("输入类型不匹配")
+			}
+			iterVal, ok := inputMap[iterationTotal].(int64)
+			if !ok {
+				return nil, fmt.Errorf("迭代值类型不匹配")
+			}
+			fmt.Printf("迭代内容: %d\n", iterVal)
+		}
 	}
+	ret := make(map[string]any, 1)
+	ret["result"] = r
 	result := core.Result{
-		Output: []string{"a", "b", "c"},
+		Output: ret,
 		Route:  []string{Success},
 	}
 	return &result, nil

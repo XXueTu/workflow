@@ -13,6 +13,8 @@ type WorkflowEngine interface {
 	GetWorkflowStatus(workflowID string) (WorkflowStatus, bool)
 	GetPoolStats() map[string]any
 	GetMetrics(workflowID string) (*WorkflowMetrics, bool)
+
+	PauseWorkflow(ctx context.Context, workflowID string, serialID string) error
 }
 
 // WorkflowStatus 表示工作流的状态
@@ -29,6 +31,7 @@ type WorkflowMetrics struct {
 	ActiveExecutions     int64
 	CompletedExecutions  int64
 	FailedExecutions     int64
+	PausedExecutions     int64
 	AverageExecutionTime float64
 	LastExecutionTime    time.Time
 }
